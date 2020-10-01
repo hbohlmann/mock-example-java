@@ -26,36 +26,15 @@ public class CartPriceUpdater {
 
         if(cartToCheck == null)
         {
-            return archive.createNewCart();
+        	// What to do?
         }
 
-        int changedPriceCount = 0;
-        
         for (String idOfProduct : cartToCheck.items.keySet()) {
-            try
-            {
-                var newPrice = priceUpdater.priceForProduct(idOfProduct);
-                if (!newPrice.equals(cartToCheck.items.get(idOfProduct)))
-                {
-                    changedPrices.put(idOfProduct, newPrice);
-                    changedPriceCount++;
-                }
-            }
-            catch (PriceNotFound ex)
-            {
-               changedPrices.put(idOfProduct, 0.0);
-            }
+        	// Some Updates?
         };
         
-        if(changedPriceCount > 0)
-        {
-            priceUpdater.pricesChangedStats(changedPrices.size());
-        }
-
-        changedPrices.forEach((var idOfProduct,var priceOfProduct) -> {
-            cartToCheck.items.remove(idOfProduct);
-            cartToCheck.items.put(idOfProduct, priceOfProduct);
-        });
+        // Price-Stats Update, where is it called?
+        
 
         return cartToCheck;
     }

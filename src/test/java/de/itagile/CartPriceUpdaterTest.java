@@ -25,8 +25,7 @@ public class CartPriceUpdaterTest {
         objectUnderTest = new CartPriceUpdater(archiveMock, null);
         Cart newCart = new Cart();
 
-        when(archiveMock.byId(815)).thenReturn(null);
-        when(archiveMock.createNewCart()).thenReturn(newCart);
+        // Stubs?
 
         Cart returnedCart = objectUnderTest.recalculateCart(815);
         assertSame(newCart, returnedCart);
@@ -36,21 +35,21 @@ public class CartPriceUpdaterTest {
 	public void testEmptyCartNeverCallsPriceForProduct() throws Exception {
         Cart cart = new Cart().withId(1);
 
-        when(archiveMock.byId(1)).thenReturn(cart);
+        // Stubs?
+
         Cart returnedCart = objectUnderTest.recalculateCart(1);
         assertEquals(cart, returnedCart);
 
-        verify(priceMock, times(0)).priceForProduct(anyString());		
+        // Verify-Step?
 	}
 	
 	@Test
 	public void testCartWithOneItemIsUpdated() throws Exception {
         Cart cart = new Cart().withId(1).addProduct("Brot", 1.69);
 
-        when(archiveMock.byId(1)).thenReturn(cart);
-        when(priceMock.priceForProduct("Brot")).thenReturn(1.79);
-        Cart returnedCart = objectUnderTest.recalculateCart(1);
+        // Stubs?
 
+        Cart returnedCart = objectUnderTest.recalculateCart(1);
         assertEquals((Double)1.79, returnedCart.items.get("Brot"));
 	}
 	
@@ -58,22 +57,22 @@ public class CartPriceUpdaterTest {
 	public void testCartWithoutChangeDoesNotCallStats() throws Exception {
         Cart cart = new Cart().withId(1).addProduct("Brot", 1.69);
 
-        when(archiveMock.byId(1)).thenReturn(cart);
-        when(priceMock.priceForProduct("Brot")).thenReturn(1.69);
+        // Stubs?
+
         objectUnderTest.recalculateCart(1);
 
-        verify(priceMock, times(0)).pricesChangedStats(anyInt());		
+        // Verify-Step?
 	}
 
 	@Test
 	public void testCartWithChangesCallsStats() throws Exception {
         Cart cart = new Cart().withId(1).addProduct("Brot", 1.69);
 
-        when(archiveMock.byId(1)).thenReturn(cart);
-        when(priceMock.priceForProduct("Brot")).thenReturn(9.61);
+        // Stubs?
+
         objectUnderTest.recalculateCart(1);
 
-        verify(priceMock, times(1)).pricesChangedStats(1);		
+        // Verify-Step?
 	}
 	
 	@Test
@@ -83,10 +82,7 @@ public class CartPriceUpdaterTest {
                 .addProduct("Butter", 1.19)
                 .addProduct("Marmelade", 2.69);
 		
-        when(archiveMock.byId(1)).thenReturn(cart);
-        when(priceMock.priceForProduct("Brot")).thenReturn(1.69);
-        when(priceMock.priceForProduct("Butter")).thenReturn(1.29);
-        when(priceMock.priceForProduct("Marmelade")).thenReturn(2.99);
+        // Many Stubs?
         
         Cart returnedCart = objectUnderTest.recalculateCart(1);
 
@@ -100,11 +96,12 @@ public class CartPriceUpdaterTest {
 	public void testProductWithoutPrice() throws Exception {
         Cart cart = new Cart().withId(1).addProduct("UNKNOWN", 9.99);
 		
-        when(archiveMock.byId(1)).thenReturn(cart);
-        when(priceMock.priceForProduct(anyString())).thenThrow(PriceNotFound.class);
+        // Many Stubs?
+
         Cart returnedCart = objectUnderTest.recalculateCart(1);
 
         assertEquals((Double)0.00, returnedCart.items.get("UNKNOWN"));
-        verify(priceMock, times(0)).pricesChangedStats(anyInt());		
+        
+        // Verify? Check if Price Update is not called.
 	}
 }
