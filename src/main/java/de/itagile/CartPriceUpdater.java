@@ -30,7 +30,7 @@ public class CartPriceUpdater {
             try
             {
                 var newPrice = PriceService.PriceForProduct(idOfProduct);
-                if (newPrice != cartToCheck.Items.get(idOfProduct))
+                if (!newPrice.equals(cartToCheck.Items.get(idOfProduct)))
                 {
                     changedPrices.put(idOfProduct, newPrice);
                     changedPriceCount++;
