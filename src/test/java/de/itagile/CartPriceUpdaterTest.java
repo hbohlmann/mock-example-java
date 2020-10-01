@@ -8,103 +8,103 @@ import org.junit.Test;
 
 public class CartPriceUpdaterTest {
 
-	CartArchive archiveMock;
-	PriceUpdates priceMock;
-	CartPriceUpdater objectUnderTest;
+	private CartRepository archiveMock;
+	private PriceUpdater priceMock;
+	private CartPriceUpdater objectUnderTest;
 
 	@Before
 	public void setUp() {
-		archiveMock = mock(CartArchive.class);
-		priceMock = mock(PriceUpdates.class);
+		archiveMock = mock(CartRepository.class);
+		priceMock = mock(PriceUpdater.class);
 
 		objectUnderTest = new CartPriceUpdater(archiveMock, priceMock);
 	}
 
 	@Test
-	public void TestCreateNewCartIfNotExists() throws Exception {
+	public void testCreateNewCartIfNotExists() throws Exception {
         objectUnderTest = new CartPriceUpdater(archiveMock, null);
         Cart newCart = new Cart();
 
-        when(archiveMock.ById(815)).thenReturn(null);
-        when(archiveMock.CreateNewCart()).thenReturn(newCart);
+        when(archiveMock.byId(815)).thenReturn(null);
+        when(archiveMock.createNewCart()).thenReturn(newCart);
 
-        Cart returnedCart = objectUnderTest.RecalculateCart(815);
+        Cart returnedCart = objectUnderTest.recalculateCart(815);
         assertSame(newCart, returnedCart);
 	}
 	
 	@Test
-	public void TestEmptyCartNeverCallsPriceForProduct() throws Exception {
+	public void testEmptyCartNeverCallsPriceForProduct() throws Exception {
         Cart cart = new Cart().withId(1);
 
-        when(archiveMock.ById(1)).thenReturn(cart);
-        Cart returnedCart = objectUnderTest.RecalculateCart(1);
+        when(archiveMock.byId(1)).thenReturn(cart);
+        Cart returnedCart = objectUnderTest.recalculateCart(1);
         assertEquals(cart, returnedCart);
 
-        verify(priceMock, times(0)).PriceForProduct(anyString());		
+        verify(priceMock, times(0)).priceForProduct(anyString());		
 	}
 	
 	@Test
-	public void TestCartWithOneItemIsUpdated() throws Exception {
+	public void testCartWithOneItemIsUpdated() throws Exception {
         Cart cart = new Cart().withId(1).addProduct("Brot", 1.69);
 
-        when(archiveMock.ById(1)).thenReturn(cart);
-        when(priceMock.PriceForProduct("Brot")).thenReturn(1.79);
-        Cart returnedCart = objectUnderTest.RecalculateCart(1);
+        when(archiveMock.byId(1)).thenReturn(cart);
+        when(priceMock.priceForProduct("Brot")).thenReturn(1.79);
+        Cart returnedCart = objectUnderTest.recalculateCart(1);
 
-        assertEquals((Double)1.79, returnedCart.Items.get("Brot"));
+        assertEquals((Double)1.79, returnedCart.items.get("Brot"));
 	}
 	
 	@Test
-	public void TestCartWithoutChangeDoesNotCallStats() throws Exception {
+	public void testCartWithoutChangeDoesNotCallStats() throws Exception {
         Cart cart = new Cart().withId(1).addProduct("Brot", 1.69);
 
-        when(archiveMock.ById(1)).thenReturn(cart);
-        when(priceMock.PriceForProduct("Brot")).thenReturn(1.69);
-        objectUnderTest.RecalculateCart(1);
+        when(archiveMock.byId(1)).thenReturn(cart);
+        when(priceMock.priceForProduct("Brot")).thenReturn(1.69);
+        objectUnderTest.recalculateCart(1);
 
-        verify(priceMock, times(0)).PricesChangedStats(anyInt());		
+        verify(priceMock, times(0)).pricesChangedStats(anyInt());		
 	}
 
 	@Test
-	public void TestCartWithChangesCallsStats() throws Exception {
+	public void testCartWithChangesCallsStats() throws Exception {
         Cart cart = new Cart().withId(1).addProduct("Brot", 1.69);
 
-        when(archiveMock.ById(1)).thenReturn(cart);
-        when(priceMock.PriceForProduct("Brot")).thenReturn(9.61);
-        objectUnderTest.RecalculateCart(1);
+        when(archiveMock.byId(1)).thenReturn(cart);
+        when(priceMock.priceForProduct("Brot")).thenReturn(9.61);
+        objectUnderTest.recalculateCart(1);
 
-        verify(priceMock, times(1)).PricesChangedStats(1);		
+        verify(priceMock, times(1)).pricesChangedStats(1);		
 	}
 	
 	@Test
-	public void TestCartCanHandleMultipleEntries() throws Exception {
+	public void testCartCanHandleMultipleEntries() throws Exception {
         Cart cart = new Cart().withId(1)
                 .addProduct("Brot", 1.69)
                 .addProduct("Butter", 1.19)
                 .addProduct("Marmelade", 2.69);
 		
-        when(archiveMock.ById(1)).thenReturn(cart);
-        when(priceMock.PriceForProduct("Brot")).thenReturn(1.69);
-        when(priceMock.PriceForProduct("Butter")).thenReturn(1.29);
-        when(priceMock.PriceForProduct("Marmelade")).thenReturn(2.99);
+        when(archiveMock.byId(1)).thenReturn(cart);
+        when(priceMock.priceForProduct("Brot")).thenReturn(1.69);
+        when(priceMock.priceForProduct("Butter")).thenReturn(1.29);
+        when(priceMock.priceForProduct("Marmelade")).thenReturn(2.99);
         
-        Cart returnedCart = objectUnderTest.RecalculateCart(1);
+        Cart returnedCart = objectUnderTest.recalculateCart(1);
 
-        assertEquals((Double)1.69, returnedCart.Items.get("Brot"));
-        assertEquals((Double)1.29, returnedCart.Items.get("Butter"));
-        assertEquals((Double)2.99, returnedCart.Items.get("Marmelade"));
+        assertEquals((Double)1.69, returnedCart.items.get("Brot"));
+        assertEquals((Double)1.29, returnedCart.items.get("Butter"));
+        assertEquals((Double)2.99, returnedCart.items.get("Marmelade"));
         
 	}
 	
 	@Test
-	public void TestProductWithoutPrice() throws Exception {
+	public void testProductWithoutPrice() throws Exception {
         Cart cart = new Cart().withId(1).addProduct("UNKNOWN", 9.99);
 		
-        when(archiveMock.ById(1)).thenReturn(cart);
-        when(priceMock.PriceForProduct(anyString())).thenThrow(PriceNotFound.class);
-        Cart returnedCart = objectUnderTest.RecalculateCart(1);
+        when(archiveMock.byId(1)).thenReturn(cart);
+        when(priceMock.priceForProduct(anyString())).thenThrow(PriceNotFound.class);
+        Cart returnedCart = objectUnderTest.recalculateCart(1);
 
-        assertEquals((Double)0.00, returnedCart.Items.get("UNKNOWN"));
-        verify(priceMock, times(0)).PricesChangedStats(anyInt());		
+        assertEquals((Double)0.00, returnedCart.items.get("UNKNOWN"));
+        verify(priceMock, times(0)).pricesChangedStats(anyInt());		
 	}
 }

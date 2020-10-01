@@ -5,32 +5,37 @@ import java.util.Map;
 
 public class CartPriceUpdater {
 
-    private CartArchive ArchiveService;
-    private PriceUpdates PriceService;
+    private CartRepository archive;
+    private PriceUpdater priceUpdater;
 
-    public CartPriceUpdater(CartArchive Archive, PriceUpdates Price)
+    public CartPriceUpdater(CartRepository archive, PriceUpdater priceUpdater)
     {
-        ArchiveService = Archive;
-        PriceService = Price;
+        this.archive = archive;
+        this.priceUpdater = priceUpdater;
     }
 
-    public Cart RecalculateCart(int CartId)
+    /**
+     * Loads a Cart and updates all prices.
+     * If a price has changed, price-stats are updated.
+     * Creates a new cart if it does not exists.
+     */
+    public Cart recalculateCart(int cartId)
     {
-    	var cartToCheck = ArchiveService.ById(CartId);
+    	var cartToCheck = archive.byId(cartId);
         Map<String, Double> changedPrices = new HashMap<String, Double>();
 
         if(cartToCheck == null)
         {
-            return ArchiveService.CreateNewCart();
+            return archive.createNewCart();
         }
 
         int changedPriceCount = 0;
         
-        for (String idOfProduct : cartToCheck.Items.keySet()) {
+        for (String idOfProduct : cartToCheck.items.keySet()) {
             try
             {
-                var newPrice = PriceService.PriceForProduct(idOfProduct);
-                if (!newPrice.equals(cartToCheck.Items.get(idOfProduct)))
+                var newPrice = priceUpdater.priceForProduct(idOfProduct);
+                if (!newPrice.equals(cartToCheck.items.get(idOfProduct)))
                 {
                     changedPrices.put(idOfProduct, newPrice);
                     changedPriceCount++;
@@ -44,11 +49,12 @@ public class CartPriceUpdater {
         
         if(changedPriceCount > 0)
         {
-            PriceService.PricesChangedStats(changedPrices.size());
+            priceUpdater.pricesChangedStats(changedPrices.size());
         }
+
         changedPrices.forEach((var idOfProduct,var priceOfProduct) -> {
-            cartToCheck.Items.remove(idOfProduct);
-            cartToCheck.Items.put(idOfProduct, priceOfProduct);
+            cartToCheck.items.remove(idOfProduct);
+            cartToCheck.items.put(idOfProduct, priceOfProduct);
         });
 
         return cartToCheck;

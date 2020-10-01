@@ -6,32 +6,32 @@ import java.util.Map;
 public class Cart {
 	
 	
-    public Integer CartId;
-    public Integer UserId;
-    public String UserName;
-    public Map<String,Double> Items;
+    public Integer cartId;
+    public Integer userId;
+    public String userName;
+    public Map<String,Double> items;
 
     public Cart()
     {
-        Items = new HashMap<String, Double>();
+        items = new HashMap<String, Double>();
     }
 
-    public Cart withId(int CartId)
+    public Cart withId(int cartId)
     {
-        this.CartId = CartId;
+        this.cartId = cartId;
         return this;
     }
 
-    public Cart withUser(int UserId, String Name)
+    public Cart withUser(int userId, String name)
     {
-        this.UserId = UserId;
-        this.UserName = Name;
+        this.userId = userId;
+        this.userName = name;
         return this;
     }
 
     public Cart addProduct(String id, Double price)
     {
-        this.Items.put(id, price);
+        this.items.put(id, price);
         return this;
     }
 
@@ -39,7 +39,7 @@ public class Cart {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((CartId == null) ? 0 : CartId.hashCode());
+		result = prime * result + ((cartId == null) ? 0 : cartId.hashCode());
 		return result;
 	}
 
@@ -52,10 +52,10 @@ public class Cart {
 		if (getClass() != obj.getClass())
 			return false;
 		Cart other = (Cart) obj;
-		if (CartId == null) {
-			if (other.CartId != null)
+		if (cartId == null) {
+			if (other.cartId != null)
 				return false;
-		} else if (!CartId.equals(other.CartId))
+		} else if (!cartId.equals(other.cartId))
 			return false;
 		return true;
 	}
